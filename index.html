@@ -36,11 +36,11 @@
       font-size: 20px;
       margin-top: 15px;
     }
-    button {
-      padding: 10px 20px;
-      font-size: 16px;
-      margin-top: 10px;
+    .feedback.animate-correct {
+      transition: transform 0.4s ease;
+      transform: scale(1.25);
     }
+    $1
   </style>
 </head>
 <body>
@@ -179,6 +179,15 @@
         correctInARow++;
         feedback.textContent = '✅ Correct!';
         feedback.style.color = 'green';
+        feedback.classList.add('animate-correct');
+        setTimeout(() => {
+          feedback.classList.remove('animate-correct');
+        }, 400);
+        feedback.style.transition = 'transform 0.4s ease';
+        feedback.style.transform = 'scale(1.25)';
+        setTimeout(() => {
+          feedback.style.transform = 'scale(1)';
+        }, 400);
         if (correctInARow === 3) {
           correctInARow = 0;
           if (currentLevel === 'easy') {
@@ -200,14 +209,18 @@
         feedback.style.color = 'red';
       }
 
-      const nextButton = document.createElement('button');
-nextButton.textContent = 'Next Question';
-nextButton.onclick = () => {
-  feedback.textContent = '';
-  nextButton.remove();
-  displayEquation();
-};
-document.body.appendChild(nextButton);
+      const existingButton = document.getElementById('nextBtn');
+if (!existingButton) {
+  const nextButton = document.createElement('button');
+  nextButton.id = 'nextBtn';
+  nextButton.textContent = 'Next Question';
+  nextButton.onclick = () => {
+    feedback.textContent = '';
+    nextButton.remove();
+    displayEquation();
+  };
+  document.body.appendChild(nextButton);
+}
     }
 
     window.addEventListener('DOMContentLoaded', displayEquation);
