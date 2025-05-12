@@ -57,37 +57,70 @@
     const levels = {
       easy: [
         { left: ['H2', 'O2'], right: ['H2O'], correctCoeffs: [2, 1, 2] },
-        { left: ['Na', 'Cl2'], right: ['NaCl'], correctCoeffs: [2, 1, 2] }
+        { left: ['N2', 'H2'], right: ['NH3'], correctCoeffs: [1, 3, 2] },
+        { left: ['Na', 'Cl2'], right: ['NaCl'], correctCoeffs: [2, 1, 2] },
+        { left: ['Mg', 'O2'], right: ['MgO'], correctCoeffs: [2, 1, 2] },
+        { left: ['Al', 'Br2'], right: ['AlBr3'], correctCoeffs: [2, 3, 2] },
+        { left: ['K', 'H2O'], right: ['KOH', 'H2'], correctCoeffs: [2, 2, 2, 1] },
+        { left: ['HCl', 'NaOH'], right: ['NaCl', 'H2O'], correctCoeffs: [1, 1, 1, 1] },
+        { left: ['Ca', 'H2O'], right: ['Ca(OH)2', 'H2'], correctCoeffs: [1, 2, 1, 1] },
+        { left: ['Fe', 'S'], right: ['FeS'], correctCoeffs: [1, 1, 1] },
+        { left: ['Zn', 'HCl'], right: ['ZnCl2', 'H2'], correctCoeffs: [1, 2, 1, 1] }
       ],
       medium: [
         { left: ['C3H8', 'O2'], right: ['CO2', 'H2O'], correctCoeffs: [1, 5, 3, 4] },
-        { left: ['Al', 'O2'], right: ['Al2O3'], correctCoeffs: [4, 3, 2] }
+        { left: ['C2H6', 'O2'], right: ['CO2', 'H2O'], correctCoeffs: [2, 7, 4, 6] },
+        { left: ['CH4', 'O2'], right: ['CO2', 'H2O'], correctCoeffs: [1, 2, 1, 2] },
+        { left: ['C4H10', 'O2'], right: ['CO2', 'H2O'], correctCoeffs: [2, 13, 8, 10] },
+        { left: ['C6H14', 'O2'], right: ['CO2', 'H2O'], correctCoeffs: [2, 19, 12, 14] },
+        { left: ['NH3', 'O2'], right: ['NO', 'H2O'], correctCoeffs: [4, 3, 4, 6] },
+        { left: ['H2S', 'O2'], right: ['SO2', 'H2O'], correctCoeffs: [2, 3, 2, 2] },
+        { left: ['C2H2', 'O2'], right: ['CO2', 'H2O'], correctCoeffs: [2, 5, 4, 2] },
+        { left: ['C7H16', 'O2'], right: ['CO2', 'H2O'], correctCoeffs: [1, 11, 7, 8] },
+        { left: ['C8H18', 'O2'], right: ['CO2', 'H2O'], correctCoeffs: [2, 25, 16, 18] }
       ],
       hard: [
         { left: ['FeS2', 'O2'], right: ['Fe2O3', 'SO2'], correctCoeffs: [4, 11, 2, 8] },
-        { left: ['C7H16', 'O2'], right: ['CO2', 'H2O'], correctCoeffs: [1, 11, 7, 8] }
+        { left: ['Al', 'Fe2O3'], right: ['Al2O3', 'Fe'], correctCoeffs: [2, 1, 1, 2] },
+        { left: ['Na2CO3', 'HCl'], right: ['NaCl', 'H2O', 'CO2'], correctCoeffs: [1, 2, 2, 1, 1] },
+        { left: ['KClO3'], right: ['KCl', 'O2'], correctCoeffs: [2, 2, 3] },
+        { left: ['AgNO3', 'Cu'], right: ['Ag', 'Cu(NO3)2'], correctCoeffs: [2, 1, 2, 1] },
+        { left: ['NaOH', 'H2SO4'], right: ['Na2SO4', 'H2O'], correctCoeffs: [2, 1, 1, 2] },
+        { left: ['Ca3(PO4)2', 'H2SO4'], right: ['CaSO4', 'H3PO4'], correctCoeffs: [1, 3, 3, 2] },
+        { left: ['Na', 'H2O'], right: ['NaOH', 'H2'], correctCoeffs: [2, 2, 2, 1] },
+        { left: ['P4', 'O2'], right: ['P2O5'], correctCoeffs: [1, 5, 2] },
+        { left: ['H2O2'], right: ['H2O', 'O2'], correctCoeffs: [2, 2, 1] }
       ]
     };
 
     let currentLevel = 'easy';
-    let currentEqIndex = 0;
-    let correctCount = 0;
+    let availableQuestions = [...levels[currentLevel]];
+    let correctInARow = 0;
+    let totalAnswered = 0;
+    let correctAnswers = 0;
+    let currentQuestion;
 
-    function getCurrentEquation() {
-      return levels[currentLevel][currentEqIndex];
+    function getRandomQuestion() {
+      if (availableQuestions.length === 0) return null;
+      const index = Math.floor(Math.random() * availableQuestions.length);
+      return availableQuestions.splice(index, 1)[0];
     }
 
     function displayEquation() {
-      const eq = getCurrentEquation();
+      currentQuestion = getRandomQuestion();
+      if (!currentQuestion) {
+        showFinalScore();
+        return;
+      }
       const container = document.getElementById('equationContainer');
       container.innerHTML = '';
 
-      eq.left.forEach((compound, index) => {
+      currentQuestion.left.forEach((compound, index) => {
         const div = document.createElement('div');
         div.className = 'compound';
         div.innerHTML = `<input type="number" min="1" value="1"> <span>${formatFormula(compound)}</span>`;
         container.appendChild(div);
-        if (index < eq.left.length - 1) {
+        if (index < currentQuestion.left.length - 1) {
           container.appendChild(document.createTextNode('+'));
         }
       });
@@ -97,61 +130,67 @@
       arrow.textContent = '→';
       container.appendChild(arrow);
 
-      eq.right.forEach((compound, index) => {
+      currentQuestion.right.forEach((compound, index) => {
         const div = document.createElement('div');
         div.className = 'compound';
         div.innerHTML = `<input type="number" min="1" value="1"> <span>${formatFormula(compound)}</span>`;
         container.appendChild(div);
-        if (index < eq.right.length - 1) {
+        if (index < currentQuestion.right.length - 1) {
           container.appendChild(document.createTextNode('+'));
         }
       });
     }
 
+    function showFinalScore() {
+      const percent = Math.round((correctAnswers / totalAnswered) * 100);
+      let message = `Your score is ${percent}%. `;
+      if (percent >= 90) {
+        message += "You're doing great! Keep working hard.";
+      } else if (percent >= 80) {
+        message += "You're close! Keep practicing and you'll get there.";
+      } else {
+        message += "Keep practicing. You'll improve with time!";
+      }
+      const feedback = document.getElementById('feedback');
+      feedback.innerHTML = '🏁 Game Over! ' + message;
+    }
+
     function checkBalance() {
       const inputs = Array.from(document.querySelectorAll('input'));
       const userCoeffs = inputs.map(i => parseInt(i.value));
-      const correct = getCurrentEquation().correctCoeffs;
-      const match = userCoeffs.length === correct.length && userCoeffs.every((val, idx) => val === correct[idx]);
+      const correct = currentQuestion.correctCoeffs;
       const feedback = document.getElementById('feedback');
 
-      if (match) {
-        correctCount++;
+      totalAnswered++;
+      if (userCoeffs.length === correct.length && userCoeffs.every((val, idx) => val === correct[idx])) {
+        correctAnswers++;
+        correctInARow++;
         feedback.textContent = '✅ Correct!';
         feedback.style.color = 'green';
-
-        setTimeout(() => {
-          currentEqIndex++;
-          const levelArray = levels[currentLevel];
-
-          if (currentEqIndex >= levelArray.length) {
-            if (currentLevel === 'easy') {
-              currentLevel = 'medium';
-              feedback.textContent = '🎉 Moving to Medium Level!';
-            } else if (currentLevel === 'medium') {
-              currentLevel = 'hard';
-              feedback.textContent = '🔥 Moving to Hard Level!';
-            } else {
-              feedback.textContent = '🏆 Congratulations! You completed all levels!';
-              return;
-            }
-            currentEqIndex = 0;
-            setTimeout(() => {
-              feedback.textContent = '';
-              displayEquation();
-            }, 1500);
+        if (correctInARow === 3) {
+          correctInARow = 0;
+          if (currentLevel === 'easy') {
+            currentLevel = 'medium';
+            feedback.textContent = '🎉 Great job! Moving to Medium Level...';
+          } else if (currentLevel === 'medium') {
+            currentLevel = 'hard';
+            feedback.textContent = '🔥 Excellent! Moving to Hard Level...';
           } else {
-            feedback.textContent = '✅ Correct! Next question...';
-            setTimeout(() => {
-              feedback.textContent = '';
-              displayEquation();
-            }, 1000);
+            showFinalScore();
+            return;
           }
-        }, 1000);
+          availableQuestions = [...levels[currentLevel]];
+        }
       } else {
+        correctInARow = 0;
         feedback.textContent = '❌ Not balanced. Try again!';
         feedback.style.color = 'red';
       }
+
+      setTimeout(() => {
+        feedback.textContent = '';
+        displayEquation();
+      }, 1500);
     }
 
     displayEquation();
