@@ -200,10 +200,14 @@
         feedback.style.color = 'red';
       }
 
-      setTimeout(() => {
-        feedback.textContent = '';
-        displayEquation();
-      }, 1500);
+      const nextButton = document.createElement('button');
+nextButton.textContent = 'Next Question';
+nextButton.onclick = () => {
+  feedback.textContent = '';
+  nextButton.remove();
+  displayEquation();
+};
+document.body.appendChild(nextButton);
     }
 
     window.addEventListener('DOMContentLoaded', displayEquation);
