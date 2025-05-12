@@ -54,6 +54,12 @@
       return formula.replace(/(\d+)/g, '<sub>$1</sub>');
     }
 
+    const combustionQuestions = [
+      { left: ['CH4', 'O2'], right: ['CO2', 'H2O'], correctCoeffs: [1, 2, 1, 2] },
+      { left: ['C3H8', 'O2'], right: ['CO2', 'H2O'], correctCoeffs: [1, 5, 3, 4] },
+      { left: ['C2H6', 'O2'], right: ['CO2', 'H2O'], correctCoeffs: [2, 7, 4, 6] }
+    ];
+
     const levels = {
       easy: [
         { left: ['H2', 'O2'], right: ['H2O'], correctCoeffs: [2, 1, 2] },
@@ -68,16 +74,16 @@
         { left: ['Zn', 'HCl'], right: ['ZnCl2', 'H2'], correctCoeffs: [1, 2, 1, 1] }
       ],
       medium: [
-        { left: ['C3H8', 'O2'], right: ['CO2', 'H2O'], correctCoeffs: [1, 5, 3, 4] },
-        { left: ['C2H6', 'O2'], right: ['CO2', 'H2O'], correctCoeffs: [2, 7, 4, 6] },
-        { left: ['CH4', 'O2'], right: ['CO2', 'H2O'], correctCoeffs: [1, 2, 1, 2] },
-        { left: ['C4H10', 'O2'], right: ['CO2', 'H2O'], correctCoeffs: [2, 13, 8, 10] },
-        { left: ['C6H14', 'O2'], right: ['CO2', 'H2O'], correctCoeffs: [2, 19, 12, 14] },
         { left: ['NH3', 'O2'], right: ['NO', 'H2O'], correctCoeffs: [4, 3, 4, 6] },
         { left: ['H2S', 'O2'], right: ['SO2', 'H2O'], correctCoeffs: [2, 3, 2, 2] },
-        { left: ['C2H2', 'O2'], right: ['CO2', 'H2O'], correctCoeffs: [2, 5, 4, 2] },
-        { left: ['C7H16', 'O2'], right: ['CO2', 'H2O'], correctCoeffs: [1, 11, 7, 8] },
-        { left: ['C8H18', 'O2'], right: ['CO2', 'H2O'], correctCoeffs: [2, 25, 16, 18] }
+        { left: ['Na', 'O2'], right: ['Na2O'], correctCoeffs: [4, 1, 2] },
+        { left: ['Fe', 'O2'], right: ['Fe2O3'], correctCoeffs: [4, 3, 2] },
+        { left: ['Ba', 'Cl2'], right: ['BaCl2'], correctCoeffs: [1, 1, 1] },
+        { left: ['Al', 'HCl'], right: ['AlCl3', 'H2'], correctCoeffs: [2, 6, 2, 3] },
+        { left: ['Ca', 'N2'], right: ['Ca3N2'], correctCoeffs: [3, 1, 1] },
+        { left: ['Cu', 'AgNO3'], right: ['Cu(NO3)2', 'Ag'], correctCoeffs: [1, 2, 1, 2] },
+        { left: ['H2SO4', 'NaOH'], right: ['Na2SO4', 'H2O'], correctCoeffs: [1, 2, 1, 2] },
+        { left: ['Zn', 'CuSO4'], right: ['ZnSO4', 'Cu'], correctCoeffs: [1, 1, 1, 1] }
       ],
       hard: [
         { left: ['FeS2', 'O2'], right: ['Fe2O3', 'SO2'], correctCoeffs: [4, 11, 2, 8] },
@@ -99,8 +105,14 @@
     let totalAnswered = 0;
     let correctAnswers = 0;
     let currentQuestion;
+    let combustionUsed = false;
 
     function getRandomQuestion() {
+      if (!combustionUsed && Math.random() < 0.5 && combustionQuestions.length > 0) {
+        combustionUsed = true;
+        const index = Math.floor(Math.random() * combustionQuestions.length);
+        return combustionQuestions.splice(index, 1)[0];
+      }
       if (availableQuestions.length === 0) return null;
       const index = Math.floor(Math.random() * availableQuestions.length);
       return availableQuestions.splice(index, 1)[0];
@@ -180,6 +192,7 @@
             return;
           }
           availableQuestions = [...levels[currentLevel]];
+          combustionUsed = false;
         }
       } else {
         correctInARow = 0;
