@@ -50,6 +50,10 @@
   <div class="feedback" id="feedback"></div>
 
   <script>
+    function formatFormula(formula) {
+      return formula.replace(/(\d+)/g, '<sub>$1</sub>');
+    }
+
     const levels = {
       easy: [
         { left: ['H2', 'O2'], right: ['H2O'], correctCoeffs: [2, 1, 2] },
@@ -81,7 +85,7 @@
       eq.left.forEach((compound, index) => {
         const div = document.createElement('div');
         div.className = 'compound';
-        div.innerHTML = `<input type="number" min="1" value="1"> <span>${compound}</span>`;
+        div.innerHTML = `<input type="number" min="1" value="1"> <span>${formatFormula(compound)}</span>`;
         container.appendChild(div);
         if (index < eq.left.length - 1) {
           container.appendChild(document.createTextNode('+'));
@@ -96,7 +100,7 @@
       eq.right.forEach((compound, index) => {
         const div = document.createElement('div');
         div.className = 'compound';
-        div.innerHTML = `<input type="number" min="1" value="1"> <span>${compound}</span>`;
+        div.innerHTML = `<input type="number" min="1" value="1"> <span>${formatFormula(compound)}</span>`;
         container.appendChild(div);
         if (index < eq.right.length - 1) {
           container.appendChild(document.createTextNode('+'));
