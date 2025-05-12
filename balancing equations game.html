@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Equation Balancer Quest</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background-color: #f0f8ff;
+    }
+    .equation-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      font-size: 24px;
+      margin: 20px;
+    }
+    .compound {
+      display: flex;
+      align-items: center;
+      margin: 0 5px;
+    }
+    .compound input {
+      width: 50px;
+      font-size: 18px;
+      text-align: center;
+      margin-right: 5px;
+    }
+    .arrow {
+      margin: 0 10px;
+    }
+    .feedback {
+      font-size: 20px;
+      margin-top: 15px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Equation Balancer Quest</h1>
+  <div class="equation-container" id="equationContainer"></div>
+  <button onclick="checkBalance()">Check Answer</button>
+  <div class="feedback" id="feedback"></div>
+
+  <script>
+    const levels = {
+      easy: [
+        { left: ['H2', 'O2'], right: ['H2O'], correctCoeffs: [2, 1, 2] },
+        { left: ['Na', 'Cl2'], right: ['NaCl'], correctCoeffs: [2, 1, 2] }
+      ],
+      medium: [
+        { left: ['C3H8', 'O2'], right: ['CO2', 'H2O'], correctCoeffs: [1, 5, 3, 4] },
+        { left: ['Al', 'O2'], right: ['Al2O3'], correctCoeffs: [4, 3, 2] }
+      ],
+      hard: [
+        { left: ['FeS2', 'O2'], right: ['Fe2O3', 'SO2'], correctCoeffs: [4, 11, 2, 8] },
+        { left: ['C7H16', 'O2'], right: ['CO2', 'H2O'], correctCoeffs: [1, 11, 7, 8] }
+      ]
+    };
+
+    let currentLevel = 'easy';
+    let currentEqIndex = 0;
+    let correctCount = 0;
+
+    function getCurrentEquation() {
+      return levels[currentLevel][currentEqIndex];
+    }
+
+    function displayEquation() {
+      const eq = getCurrentEquation();
+      const container = document.getElementById('equationContainer');
+      container.innerHTML = '';
+
+      eq.left.forEach((compound, index) => {
+        const div = document.createElement('div');
+        div.className = 'compound';
+        div.innerHTML = `<input type="number" min="1" value="1"> <span>${compound}</span>`;
+        container.appendChild(div);
+        if (index < eq.left.length - 1) {
+          container.appendChild(document.createTextNode('+'));
+        }
+      });
+
+      const arrow = document.createElement('span');
+      arrow.className = 'arrow';
+      arrow.textContent = '→';
+      container.appendChild(arrow);
+
+      eq.right.forEach((compound, index) => {
+        const div = document.createElement('div');
+        div.className = 'compound';
+        div.innerHTML = `<input type="number" min="1" value="1"> <span>${compound}</span>`;
+        container.appendChild(div);
+        if (index < eq.right.length - 1) {
+          container.appendChild(document.createTextNode('+'));
+        }
+      });
+    }
+
+    function checkBalance() {
+      const inputs = Array.from(document.querySelectorAll('input'));
+      const userCoeffs = inputs.map(i => parseInt(i.value));
+      const correct = getCurrentEquation().correctCoeffs;
+      const match = userCoeffs.length === correct.length && userCoeffs.every((val, idx) => val === correct[idx]);
+      const feedback = document.getElementById('feedback');
+
+      if (match) {
+        correctCount++;
+        feedback.textContent = '✅ Correct!';
+        feedback.style.color = 'green';
+
+        setTimeout(() => {
+          currentEqIndex++;
+          const levelArray = levels[currentLevel];
+
+          if (currentEqIndex >= levelArray.length) {
+            if (currentLevel === 'easy') {
+              currentLevel = 'medium';
+              feedback.textContent = '🎉 Moving to Medium Level!';
+            } else if (currentLevel === 'medium') {
+              currentLevel = 'hard';
+              feedback.textContent = '🔥 Moving to Hard Level!';
+            } else {
+              feedback.textContent = '🏆 Congratulations! You completed all levels!';
+              return;
+            }
+            currentEqIndex = 0;
+            setTimeout(() => {
+              feedback.textContent = '';
+              displayEquation();
+            }, 1500);
+          } else {
+            feedback.textContent = '✅ Correct! Next question...';
+            setTimeout(() => {
+              feedback.textContent = '';
+              displayEquation();
+            }, 1000);
+          }
+        }, 1000);
+      } else {
+        feedback.textContent = '❌ Not balanced. Try again!';
+        feedback.style.color = 'red';
+      }
+    }
+
+    displayEquation();
+  </script>
+</body>
+</html>
